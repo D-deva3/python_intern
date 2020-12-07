@@ -1,26 +1,79 @@
-import  json
-x={
-    "Name":"roja",
-    "Age":25,
-    "city":"chennai",
-    "grade": None,
-    "result": True,
-    "marks1":{"bio":99,"CS":100},
-    "marks2":[70,58,99],
-    "avg":97.99
-}
-y=json.dumps(x)
-print(y)
-print(json.dumps((1,2,3)))
-print(json.dumps(list(range(9))))
+# Create a JSON of all object types and import the JSON into a SQL Database Note: The JSON file should have valus of all Datatypes
+import json
 
-from pymongo import MongoClient
-myclient=MongoClient("mongodb://localhost:27017/") #making connection
-db=myclient["ABC"] #database
-Collection=db["data"]
-with open('D:\\Python Internship\\task12\\data.json') as f:
-    file_data=json.load(f)
-if isinstance(file_data,list):
-    Collection.insert_many(file_data)
+# creating JSON file
+data = []
+data = [
+    [
+        {"name": "devadharshini", "mark": 100, "grade": "1"},  # dictionary
+        [4, 2, 3],  # list
+        (3, 5, 1),  # tuple
+        "Chennai",  # string
+        55,  # integer
+        55.5,  # float
+        True,  # boolean
+        "none"  # none
+    ]
+]
+
+with open('mydata.json', 'w') as outfile:
+    json.dump(data, outfile)
+    print("JSON file successfully created")
+
+# JSON file successfully created
+
+import sqlite3
+
+con = sqlite3.connect("test.db")
+print("Database successfully connected")
+
+# Database successfully connected
+
+cursor = con.cursor()
+try:
+    cursor.execute("CREATE TABLE MYDETAILS"
+                   "("
+                   + "dictinary BLOB,"
+                   + "list BLOB,"
+                   + "tuple BLOB,"
+                   + "string varchar(50),"
+                   + "Integer INTEGER,"
+                   + "flo FLOAT,"
+                   + "Bool BOOLEAN,"
+                   + "None BLOB"
+                     ");")
+except Exception as e:
+    print("Error :", e)
 else:
-    Collection.insert_one(file_data)
+    print("Table Successfully created")
+
+
+# Table Successfully created
+
+datafile = open("mydata.json")
+dataset = json.load(datafile)
+dataframe = []
+for row in dataset:
+    data = (str(row[0]), str(row[1]), str(row[2]), str(row[3]), int(row[4]),
+            float(row[5]), bool(row[6]), row[7])
+    dataframe.append(data)
+
+try:
+    cursor.executemany("INSERT INTO MYDETAILS VALUES (?,?,?,?,?,?,?,?)", dataframe)
+except Exception as e:
+    print("Error : ", e)
+else:
+    con.commit()
+    print("values successfully inserted")
+
+# values successfully inserted
+
+try:
+    cursor.execute("SELECT * from MYDETAILS")
+except Exception as e:
+    print("Error : ", e)
+else:
+    for row in cursor.fetchall():
+        print(row)
+
+con.close()
